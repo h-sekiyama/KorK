@@ -1,0 +1,40 @@
+<head>
+  <title>KorK</title>
+
+  <script src="https://www.gstatic.com/firebasejs/3.7.3/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyD4ijbxzaOcareOLoGgwIvyF8qQU-Lx_v0",
+      authDomain: "kashiwa-or-komagome-50152.firebaseapp.com",
+      databaseURL: "https://kashiwa-or-komagome-50152.firebaseio.com",
+      storageBucket: "kashiwa-or-komagome-50152.appspot.com",
+      messagingSenderId: "36365130311"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+
+<body>
+  {{> kashiwa}}
+  {{> komagome}}
+  {{> info}}
+</body>
+
+<template name="kashiwa">
+  <button id="kashiwa_btn">柏</button>
+</template>
+
+<template name="komagome">
+  <button id="komagome_btn">駒込</button>
+</template>
+
+
+<template name="info">
+  <div>今日は…</div>
+  <div>
+    みっちゃんは<span id="mithcan"></span><br>
+    ゆっこは<span id="yucco"></span>
+  </div>
+</template>
