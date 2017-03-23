@@ -1,10 +1,14 @@
 import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
-
-var db = firebase.database();
-var myChatAll = db.ref("/Data");
-
 import './main.html';
+
+var userAgent = window.navigator.userAgent.toLowerCase();
+var who = '';
+// alert(userAgent);
+if(userAgent.indexOf('iphone') == -1) {
+  who = 'mitchan';
+} else {
+  who = 'yucco';
+}
 
 //今日の日付データを変数hidukeに格納
 var hiduke=new Date(); 
@@ -15,10 +19,25 @@ var month = hiduke.getMonth()+1;
 var day = hiduke.getDate();
 
 
-// Template.kashiwa.onCreated(function kashiwaOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
+Template.kashiwa.onCreated(function kashiwaOnCreated() {
+  var db = firebase.database();
+  var myDB = db.ref("/Data/mitchan");
+  myDB.on("value", function(snapshot) {
+    if(snapshot.val()['place'] != null) {
+      $('#mitchan').html(snapshot.val()['place']);
+    }
+  })
+});
+
+Template.kashiwa.onCreated(function kashiwaOnCreated() {
+  var db = firebase.database();
+  var myDB = db.ref("/Data/yucco");
+  myDB.on("value", function(snapshot) {
+    if(snapshot.val()['place'] != null) {
+      $('#yucco').html(snapshot.val()['place']);
+    }
+  })
+});
 
 // Template.kashiwa.helpers({
 //   counter() {
@@ -26,28 +45,22 @@ var day = hiduke.getDate();
 //   },
 // });
 
-// Template.kashiwa.events({
-//   // 'click button'(event, instance) {
-//   //   increment the counter when button is clicked
-//   //   instance.counter.set(instance.counter.get() + 1);
-//   //   alert("柏！");
-//   //   $('#mithcan').html("柏");
-//   //   myChatAll.set({date: year + "/" + month + "/" + day, place: "柏", who: "みっちゃん"});
-//   // },
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
+Template.kashiwa.events({
+  'click button'(event, instance) {
+    var db = firebase.database();
+    var myDB = db.ref("/Data/" + who);
+    alert(who + "は柏！");
+    $('#' + who).html("柏");
+    myDB.update({date: year + "/" + month + "/" + day, place: "柏"});
+  },
+});
 
-$("body").on("touchstart", "#kashiwa_btn", function() {
-  alert("柏！");
-  $('#mithcan').html("柏");
-  myChatAll.set({date: year + "/" + month + "/" + day, place: "柏", who: "みっちゃん"});
-})
-
-$("body").on("touchstart", "#komagome_btn", function() {
-    alert("駒込！");
-    $('#mithcan').html("駒込");
-    myChatAll.set({date: year + "/" + month + "/" + day, place: "駒込", who: "みっちゃん"});
-})
+Template.komagome.events({
+  'click button'(event, instance) {
+    var db = firebase.database();
+    var myDB = db.ref("/Data/" + who);
+    alert(who + "は駒込！");
+    $('#' + who).html("駒込");
+    myDB.update({date: year + "/" + month + "/" + day, place: "駒込"});
+  },
+});
