@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import { Template } from 'meteor/templating';
 import './main.html';
 
@@ -10,41 +11,30 @@ if(userAgent.indexOf('iphone') == -1) {
   who = 'yucco';
 }
 
-//今日の日付データを変数hidukeに格納
+// 今日の日付データを変数hidukeに格納
 var hiduke=new Date(); 
 
-//年・月・日・曜日を取得する
+// 年・月・日・曜日を取得する
 var year = hiduke.getFullYear();
 var month = hiduke.getMonth()+1;
 var day = hiduke.getDate();
 
-
-Template.kashiwa.onCreated(function kashiwaOnCreated() {
-  var db = firebase.database();
-  var myDB = db.ref("/Data/mitchan");
-  myDB.on("value", function(snapshot) {
-    if(snapshot.val()['place'] != null) {
-      $('#mitchan').html(snapshot.val()['place']);
-    }
-  })
+// 帰宅先情報表示
+_.each(['mitchan', 'yucco'], function(who) {
+  Template.kashiwa.onCreated(function kashiwaOnCreated() {
+    var db = firebase.database();
+    var myDB = db.ref("/Data/" + who);
+    myDB.on("value", function(snapshot) {
+      if(snapshot.val()['date'] == year + "/" + month + "/" + day ) {
+        $('#' + who).html(snapshot.val()['place']);
+      } else {
+        $('#' + who).html('愚か者');
+      }
+    })
+  });
 });
 
-Template.kashiwa.onCreated(function kashiwaOnCreated() {
-  var db = firebase.database();
-  var myDB = db.ref("/Data/yucco");
-  myDB.on("value", function(snapshot) {
-    if(snapshot.val()['place'] != null) {
-      $('#yucco').html(snapshot.val()['place']);
-    }
-  })
-});
-
-// Template.kashiwa.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
-
+// 各ボタンタップ時の挙動
 Template.kashiwa.events({
   'click button'(event, instance) {
     var db = firebase.database();
