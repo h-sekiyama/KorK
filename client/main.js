@@ -14,10 +14,11 @@ if(userAgent.indexOf('iphone') == -1) {
 // 今日の日付データを変数hidukeに格納
 var hiduke=new Date(); 
 
-// 年・月・日・曜日を取得する
+// 年・月・日・時間を取得する
 var year = hiduke.getFullYear();
 var month = hiduke.getMonth()+1;
 var day = hiduke.getDate();
+var hour = hiduke.getHours();
 
 // 帰宅先情報表示
 _.each(['mitchan', 'yucco'], function(who) {
@@ -65,9 +66,21 @@ if(typeof device === 'undefined'){
 }
 
 function onDeviceReady() {
-  // navigator.vibrate([1000, 1000, 3000, 1000, 5000]);
 
 }
+
+/**
+  ローカル通知（iPhoneの場合は許可が必要）
+**/
+scheduleMinutely = function () {
+  var sound = device.platform == 'Android' ? 'file://sound.mp3' : 'file://beep.caf';
+  cordova.plugins.notification.local.schedule({
+    id: 1,
+    text: '愚か者！どっちに帰るのかちゃんと連絡しろ！',
+    every: 10,
+    sound: sound
+  });
+};
 
 /**
   端末バックグラウンドに入った時に行うメソッド
@@ -77,15 +90,41 @@ if(typeof device === 'undefined'){
 }else{
   onPause();
 }
-
 function onPause() {
-  var intervalId = setInterval(function() {
-    var db = firebase.database();
-    var myDB = db.ref("/Data/" + who);
-    myDB.on("value", function(snapshot) {
-      if(snapshot.val()['date'] != year + "/" + month + "/" + day ) {
-        navigator.vibrate(200);
-      }
-    })
-  }, 10000);
+  // navigator.vibrate(200);
+  // var db = firebase.database();
+  // var myDB = db.ref("/Data/" + who);
+  // myDB.on("value", function(snapshot) {
+  //   if((snapshot.val()['date'] != year + "/" + month + "/" + day) && hour >= 20) {
+  //     scheduleMinutely();
+  //   }
+  // }
+  cordova.plugins.notification.local.hasPermission(function(granted){
+    if(granted == true) {
+      scheduleMinutely();
+    } else {
+      cordova.plugins.notification.local.registerPermission(function(granted) {
+        if(granted == true) {
+          scheduleMinutely();
+        } else {
+          navigator.notification.alert("通知を許可してくれ！");
+        }
+      });
+    }
+  });
+}
+
+/**
+  端末がバックグラウンドから復帰した時のメソッド
+**/
+document.addEventListener("resume", onResume, false);
+function onResume() {
+  // ちゃんと連絡したら通知処理をキャンセルする
+  var db = firebase.database();
+  var myDB = db.ref("/Data/" + who);
+  myDB.on("value", function(snapshot) {
+    if((snapshot.val()['date'] != year + "/" + month + "/" + day)) {
+      cordova.plugins.notification.local.cancelAll();
+    }
+  });
 }
