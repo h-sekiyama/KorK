@@ -54,3 +54,38 @@ Template.komagome.events({
     myDB.update({date: year + "/" + month + "/" + day, place: "駒込"});
   },
 });
+
+/**
+  端末の準備を待つメソッド
+**/
+if(typeof device === 'undefined'){
+  document.addEventListener("deviceready", onDeviceReady, false);
+}else{
+  onDeviceReady();
+}
+
+function onDeviceReady() {
+  // navigator.vibrate([1000, 1000, 3000, 1000, 5000]);
+
+}
+
+/**
+  端末バックグラウンドに入った時に行うメソッド
+**/
+if(typeof device === 'undefined'){
+  document.addEventListener("pause", onPause, false);
+}else{
+  onPause();
+}
+
+function onPause() {
+  var intervalId = setInterval(function() {
+    var db = firebase.database();
+    var myDB = db.ref("/Data/" + who);
+    myDB.on("value", function(snapshot) {
+      if(snapshot.val()['date'] != year + "/" + month + "/" + day ) {
+        navigator.vibrate(200);
+      }
+    })
+  }, 10000);
+}
