@@ -43,6 +43,10 @@ Template.kashiwa.events({
     alert(who + "は柏！");
     $('#' + who).html("柏");
     myDB.update({date: year + "/" + month + "/" + day, place: "柏"});
+    cordova.plugins.notification.local.schedule({
+      id: 2,
+      text: who + 'は駒込に帰る'
+    });
   },
 });
 
@@ -53,6 +57,10 @@ Template.komagome.events({
     alert(who + "は駒込！");
     $('#' + who).html("駒込");
     myDB.update({date: year + "/" + month + "/" + day, place: "駒込"});
+    cordova.plugins.notification.local.schedule({
+      id: 3,
+      text: who + 'は駒込に帰る'
+    });
   },
 });
 
@@ -77,7 +85,8 @@ scheduleMinutely = function () {
   cordova.plugins.notification.local.schedule({
     id: 1,
     text: '愚か者！どっちに帰るのかちゃんと連絡しろ！',
-    every: 10,
+    firstAt: at_8_pm,
+    every: 'day',
     sound: sound
   });
 };
@@ -91,14 +100,6 @@ if(typeof device === 'undefined'){
   onPause();
 }
 function onPause() {
-  // navigator.vibrate(200);
-  // var db = firebase.database();
-  // var myDB = db.ref("/Data/" + who);
-  // myDB.on("value", function(snapshot) {
-  //   if((snapshot.val()['date'] != year + "/" + month + "/" + day) && hour >= 20) {
-  //     scheduleMinutely();
-  //   }
-  // }
   cordova.plugins.notification.local.hasPermission(function(granted){
     if(granted == true) {
       scheduleMinutely();
